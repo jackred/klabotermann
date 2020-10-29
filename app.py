@@ -74,7 +74,7 @@ CONVERSATION_REFERENCES: Dict[str, ConversationReference] = dict()
 APP_ID = SETTINGS.app_id if SETTINGS.app_id else uuid.uuid4()
 
 # Create the Bot
-BOT = ProactiveBot(CONVERSATION_REFERENCES)
+BOT = ProactiveBot(APP_ID, ADAPTER, CONVERSATION_REFERENCES)
 
 
 # Listen for incoming requests on /api/messages.

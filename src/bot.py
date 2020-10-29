@@ -10,11 +10,23 @@ from typing import Dict
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount, ConversationReference, Activity
 
+from .task import create_task
 
 class ProactiveBot(ActivityHandler):
-    def __init__(self, conversation_references: Dict[str, ConversationReference]):
+    def __init__(self,  app_id, adapter, conversation_references: Dict[str, ConversationReference]):
         self.conversation_references = conversation_references
-
+        self.app_id = app_id
+        self.adapter = adapter
+        create_task(self.send_proactive_message, 5)
+        
+    async def send_proactive_message(self):
+        for conversation_reference in self.conversation_references.values():
+            await self.adapter.continue_conversation(
+                conversation_reference,
+                lambda turn_context: turn_context.send_activity("proactive hello"),
+                self.app_id,
+            )
+        
     async def on_conversation_update_activity(self, turn_context: TurnContext):
         self._add_conversation_reference(turn_context.activity)
         return await super().on_conversation_update_activity(turn_context)
