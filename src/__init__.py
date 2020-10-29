@@ -6,6 +6,6 @@
 # author: JackRed <jackred@tuta.io>
 
 from .bot import ProactiveBot
-from .task import create_task
+from .task import create_repeated_task
 
 # __all__ = ["ProactiveBot", "create_task"]

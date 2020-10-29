@@ -15,10 +15,12 @@ async def wait_until(dt):
     await asyncio.sleep((dt - now).total_seconds())
 
 
-async def run_at(fn_dt, coro, loop):
+async def run_at(fn_dt, coro, loop=asyncio.get_event_loop(), repeat=False):
     await wait_until(fn_dt())
-    loop.create_task(run_at(fn_dt,
-                            coro, loop))
+    if repeat:
+        print('loop')
+        loop.create_task(run_at(fn_dt, coro, loop, repeat))
+    print('send')
     return await coro()
 
 
@@ -27,5 +29,11 @@ def time_plus(s=0, m=0, h=0):
                                                         hours=h)
 
 
-def create_task(fn, seconds, loop=asyncio.get_event_loop()):
-    loop.create_task(run_at(lambda: time_plus(seconds), fn, loop))
+def create_repeated_task(fn, time_dict, loop=asyncio.get_event_loop(),
+                         start_now=False):
+    if start_now:
+        loop.create_task(run_at(lambda: time_plus(**{'s': 5}),
+                                lambda: fn('toto'), loop))
+    loop.create_task(run_at(lambda: time_plus(**time_dict), lambda: fn('tata'),
+                            loop,
+                            repeat=True))
