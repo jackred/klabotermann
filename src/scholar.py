@@ -25,20 +25,29 @@ def compile_until_last_article(publications, last_titles, max_title=9):
 
 
 def build_message_new_articles(new_articles):
-    return '\n'.join([art.bib['title'] for art in new_articles])
+    return 'No new articles' if len(new_articles) == 0 \
+        else'\n'.join([art.bib['title'] for art in new_articles])
 
 
 def get_last_article_for_search(keywords, db):
     last_titles = database.get_title_known_articles(keywords, db)
     pubs = request_publication(keywords)
     new_articles = compile_until_last_article(pubs, last_titles)
-    new_titles = [art.bib['title'] for art in new_articles]
-    database.update_articles(keywords, new_titles, db)
-    if len(last_titles) == 0:
-        res = "Invalid request, keywords not registered"
-    else:
-        if len(new_articles) == 0:
-            res = 'No new articles'
-        else:
-            res = build_message_new_articles(new_articles)
-    return res
+    return new_articles
+
+
+def update_one_keywords(keywords, db, upsert=False):
+    new_articles = get_last_article_for_search(keywords, db)
+    titles = [art.bib['title'] for art in new_articles]
+    database.update_articles(keywords, titles, db, upsert)
+    return new_articles
+
+
+def create_new_keywords(keywords, db):
+    return update_one_keywords(keywords, db, True)
+
+
+def test(keywords, db):
+    res = create_new_keywords(keywords, db)
+    msg = 'New keywords added. %d articles stored.' % (len(res))
+    return msg
