@@ -15,10 +15,11 @@ def request_publication(keywords):
 
 
 def compile_until_last_article(publications, last_titles, max_title=9):
-    pub = next(publications)
+    if len(publications._rows) > 0:
+        pub = next(publications)
     res = []
-    while ((pub.bib['title'] not in last_titles)
-           and (publications._pos < max_title)):
+    while ((len(publications._rows) > publications._pos < max_title)
+           and (pub.bib['title'] not in last_titles)):
         res.append(pub)
         pub = next(publications)
     return res
@@ -44,10 +45,3 @@ def update_one_keywords(keywords, db, upsert=False):
 
 def create_new_keywords(keywords, db):
     return update_one_keywords(keywords, db, True)
-
-
-def test(keywords, db):
-    res = create_new_keywords(keywords, db)
-    msg = 'New keywords added. %d articles stored.' % (len(res))
-    return msg
-

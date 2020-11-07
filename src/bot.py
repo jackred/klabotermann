@@ -10,8 +10,8 @@ from typing import Dict
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount, ConversationReference, Activity
 
-from src import task
 from src import cmd
+from src import task
 
 
 class ProactiveBot(ActivityHandler):
@@ -20,10 +20,12 @@ class ProactiveBot(ActivityHandler):
         print('create bot')
         self.create_commands()
         self.prefix = prefix
+        self.db = db
         self.conversation_references = conversation_references
         self.app_id = app_id
         self.adapter = adapter
-        task.create_repeated_task(self.send_proactive_message, {'s': 10},
+        task.create_repeated_task(self.send_proactive_message,
+                                  {'s': 10},
                                   start_now=True)
 
     async def send_proactive_message(self, s='proactive hello'):
@@ -44,11 +46,10 @@ class ProactiveBot(ActivityHandler):
         pass
 
     async def on_message_activity(self, turn_context: TurnContext):
-        cmd = self.parse_commands(turn_context.activity.text)
-        if cmd is not None:
-            turn_context.send_activity(cmd())
-            self._add_conversation_reference(turn_context.activity)
-            print(self.conversation_references)
+        res = self.parse_commands(turn_context.activity.text)
+        print(res)
+        if res is not None:
+            await res[0](self, turn_context, res[1], self.db)
 
     def parse_commands(self, text):
         res = None
@@ -57,13 +58,15 @@ class ProactiveBot(ActivityHandler):
             cmds_test = cmd_test.split(' ')
             cmd = self.commands
             i = 0
-            while i < len(cmds_test) and cmds_test[i] in cmd:
+            while (i < len(cmds_test)
+                   and type(cmd) == dict
+                   and cmds_test[i] in cmd):
                 cmd = cmd[cmds_test[i]]
                 i += 1
             if i != 0:
-                res = cmd
+                res = cmd, ' '.join(cmds_test[i:])
         return res
-      
+
     def create_commands(self):
         self.commands = {'keywords': {'add': cmd.keywords_cmd_add,
                                       'rm': cmd.keywords_cmd_rm,
@@ -81,3 +84,7 @@ class ProactiveBot(ActivityHandler):
         self.conversation_references[
             conversation_reference.user.id
         ] = conversation_reference
+
+    def _rm_conversation_reference(self, activity: Activity):
+        conversation_reference = TurnContext.get_conversation_reference(activity)
+        del self.conversation_references[conversation_reference.user.id]

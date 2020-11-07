@@ -6,8 +6,12 @@
 # author: JackRed <jackred@tuta.io>
 
 
+def get_keywords(keywords, db):
+    return db['articles'].find_one({'keywords': keywords})
+
+
 def get_title_known_articles(keywords, db):
-    res = db['articles'].find_one({'keywords': keywords})
+    res = get_keywords(keywords, db)
     return [] if res is None else res['title']
 
 
