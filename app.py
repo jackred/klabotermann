@@ -78,7 +78,7 @@ CONVERSATION_REFERENCES: Dict[str, ConversationReference] = dict()
 APP_ID = SETTINGS.app_id if SETTINGS.app_id else uuid.uuid4()
 
 # Create the Bot
-BOT = ProactiveBot(APP_ID, db, ADAPTER, CONVERSATION_REFERENCES)
+BOT = ProactiveBot(CONFIG.PREFIX, APP_ID, db, ADAPTER, CONVERSATION_REFERENCES)
 
 
 # Listen for incoming requests on /api/messages.
@@ -91,7 +91,7 @@ async def messages(req: Request) -> Response:
 
     activity = Activity().deserialize(body)
     auth_header = req.headers["Authorization"] if "Authorization" in req.headers else ""
-
+    
     response = await ADAPTER.process_activity(activity, auth_header, BOT.on_turn)
     if response:
         return json_response(data=response.body, status=response.status)

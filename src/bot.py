@@ -11,12 +11,15 @@ from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount, ConversationReference, Activity
 
 from src import task
+from src import cmd
 
 
 class ProactiveBot(ActivityHandler):
-    def __init__(self,  app_id, db, adapter,
+    def __init__(self, prefix, app_id, db, adapter,
                  conversation_references: Dict[str, ConversationReference]):
         print('create bot')
+        self.create_commands()
+        self.prefix = prefix
         self.conversation_references = conversation_references
         self.app_id = app_id
         self.adapter = adapter
@@ -30,7 +33,7 @@ class ProactiveBot(ActivityHandler):
                 lambda turn_context: turn_context.send_activity(s),
                 self.app_id,
             )
-        
+
     async def on_conversation_update_activity(self, turn_context: TurnContext):
         self._add_conversation_reference(turn_context.activity)
         return await super().on_conversation_update_activity(turn_context)
@@ -38,20 +41,35 @@ class ProactiveBot(ActivityHandler):
     async def on_members_added_activity(
         self, members_added: [ChannelAccount], turn_context: TurnContext
     ):
-        for member in members_added:
-            if member.id != turn_context.activity.recipient.id:
-                await turn_context.send_activity(
-                    "Welcome to the Proactive Bot sample.  Navigate to "
-                    "http://localhost:3978/api/notify to proactively message everyone "
-                    "who has previously messaged this bot."
-                )
+        pass
 
     async def on_message_activity(self, turn_context: TurnContext):
-        self._add_conversation_reference(turn_context.activity)
-        return await turn_context.send_activity(
-            f"You sent: {turn_context.activity.text}"
-        )
+        cmd = self.parse_commands(turn_context.activity.text)
+        if cmd is not None:
+            turn_context.send_activity(cmd())
+            self._add_conversation_reference(turn_context.activity)
+            print(self.conversation_references)
 
+    def parse_commands(self, text):
+        res = None
+        if text.startswith(self.prefix):
+            cmd_test = text[text.index(self.prefix) + 1:]
+            cmds_test = cmd_test.split(' ')
+            cmd = self.commands
+            i = 0
+            while i < len(cmds_test) and cmds_test[i] in cmd:
+                cmd = cmd[cmds_test[i]]
+                i += 1
+            if i != 0:
+                res = cmd
+        return res
+      
+    def create_commands(self):
+        self.commands = {'keywords': {'add': cmd.keywords_cmd_add,
+                                      'rm': cmd.keywords_cmd_rm,
+                                      'list': cmd.keywords_cmd_list}
+                         }
+    
     def _add_conversation_reference(self, activity: Activity):
         """
         This populates the shared Dictionary that holds conversation references. In this sample,
