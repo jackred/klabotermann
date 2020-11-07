@@ -24,7 +24,11 @@ from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.schema import Activity, ActivityTypes, ConversationReference
 
 from src.bot import ProactiveBot
-from config import DefaultConfig
+from config import DefaultConfig, DBConfig
+
+from pymongo import MongoClient
+client = MongoClient(DBConfig.host, DBConfig.port)
+db = client[DBConfig.db]
 
 CONFIG = DefaultConfig()
 
@@ -74,7 +78,7 @@ CONVERSATION_REFERENCES: Dict[str, ConversationReference] = dict()
 APP_ID = SETTINGS.app_id if SETTINGS.app_id else uuid.uuid4()
 
 # Create the Bot
-BOT = ProactiveBot(APP_ID, ADAPTER, CONVERSATION_REFERENCES)
+BOT = ProactiveBot(APP_ID, db, ADAPTER, CONVERSATION_REFERENCES)
 
 
 # Listen for incoming requests on /api/messages.
