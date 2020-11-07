@@ -23,7 +23,7 @@ from botbuilder.core import (
 from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.schema import Activity, ActivityTypes, ConversationReference
 
-from src import ProactiveBot
+from src.bot import ProactiveBot
 from config import DefaultConfig
 
 CONFIG = DefaultConfig()
