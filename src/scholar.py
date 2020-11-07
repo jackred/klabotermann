@@ -25,8 +25,7 @@ def compile_until_last_article(publications, last_titles, max_title=9):
 
 
 def build_message_new_articles(new_articles):
-    return 'No new articles' if len(new_articles) == 0 \
-        else'\n'.join([art.bib['title'] for art in new_articles])
+    return '\n'.join([art.bib['title'] for art in new_articles])
 
 
 def get_last_article_for_search(keywords, db):
@@ -51,3 +50,4 @@ def test(keywords, db):
     res = create_new_keywords(keywords, db)
     msg = 'New keywords added. %d articles stored.' % (len(res))
     return msg
+
