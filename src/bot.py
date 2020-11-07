@@ -14,7 +14,7 @@ from src import task
 
 
 class ProactiveBot(ActivityHandler):
-    def __init__(self,  app_id, adapter,
+    def __init__(self,  app_id, db, adapter,
                  conversation_references: Dict[str, ConversationReference]):
         print('create bot')
         self.conversation_references = conversation_references
