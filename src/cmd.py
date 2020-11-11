@@ -8,6 +8,7 @@
 from src import scholar
 from src import database
 
+from pymongo import ASCENDING
 
 
 def cmd_create_keywords(keywords, db):
@@ -43,4 +44,8 @@ async def keywords_cmd_rm(bot, turn_context, args, db):
 
 
 async def keywords_cmd_list(bot, turn_context, args, db):
-    pass
+    res = [k['keywords'] for k in
+           database.get_all_keywords(db, {'keywords': 1})
+           .sort('keywords', ASCENDING)]
+    msg = '%d keywords watched:   \n%s' % (len(res), '   \n'.join(res))
+    await turn_context.send_activity(msg)
