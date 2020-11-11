@@ -22,13 +22,11 @@ def cmd_create_keywords(keywords, db):
 
 
 async def keywords_cmd_add(bot, turn_context, args, db):
-    # bot._add_conversation_reference(turn_context.activity)
     msg = cmd_create_keywords(args, db)
     await turn_context.send_activity(msg)
 
 
 async def keywords_cmd_rm(bot, turn_context, args, db):
-    # bot._rm_conversation_reference(turn_context.activity)
     res = database.rm_keywords(args, db)
     if res.acknowledged:
         if res.deleted_count == 1:
@@ -47,5 +45,5 @@ async def keywords_cmd_list(bot, turn_context, args, db):
     res = [k['keywords'] for k in
            database.get_all_keywords(db, {'keywords': 1})
            .sort('keywords', ASCENDING)]
-    msg = '%d keywords watched:   \n%s' % (len(res), '   \n'.join(res))
+    msg = '%d keywords watched%s%s' % (len(res), '' if len(res) == 0 else ':   \n- ', '\n- '.join(res))
     await turn_context.send_activity(msg)

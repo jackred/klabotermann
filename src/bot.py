@@ -25,7 +25,7 @@ class ProactiveBot(ActivityHandler):
         self.app_id = app_id
         self.adapter = adapter
         task.create_repeated_task(self.send_proactive_message,
-                                  {'s': 10},
+                                  {'s': 30},
                                   start_now=True)
 
     async def send_proactive_message(self, s='proactive hello'):
@@ -46,6 +46,7 @@ class ProactiveBot(ActivityHandler):
         pass
 
     async def on_message_activity(self, turn_context: TurnContext):
+        self._add_conversation_reference(turn_context.activity)
         res = self.parse_commands(turn_context.activity.text)
         print(res)
         if res is not None:

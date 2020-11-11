@@ -24,5 +24,6 @@ def update_articles(keywords, titles, db, upsert=False):
                                      {'$push': {'title': {'$each': titles}}},
                                      upsert=upsert)
 
+
 def rm_keywords(keywords, db):
     return db['articles'].delete_one({'keywords': keywords})
