@@ -18,9 +18,7 @@ async def wait_until(dt):
 async def run_at(fn_dt, coro, loop=asyncio.get_event_loop(), repeat=False):
     await wait_until(fn_dt())
     if repeat:
-        print('loop')
         loop.create_task(run_at(fn_dt, coro, loop, repeat))
-    print('send')
     return await coro()
 
 
@@ -33,7 +31,7 @@ def create_repeated_task(fn, time_dict, loop=asyncio.get_event_loop(),
                          start_now=False):
     if start_now:
         loop.create_task(run_at(lambda: time_plus(**{'s': 5}),
-                                lambda: fn('toto'), loop))
-    loop.create_task(run_at(lambda: time_plus(**time_dict), lambda: fn('tata'),
+                                fn, loop))
+    loop.create_task(run_at(lambda: time_plus(**time_dict), fn,
                             loop,
                             repeat=True))

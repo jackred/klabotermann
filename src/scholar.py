@@ -6,7 +6,7 @@
 # author: JackRed <jackred@tuta.io>
 
 from scholarly import scholarly
-from . import database
+from src import database
 
 
 def request_publication(keywords):
@@ -39,6 +39,7 @@ def get_last_article_for_search(keywords, db):
 def update_one_keywords(keywords, db, upsert=False):
     new_articles = get_last_article_for_search(keywords, db)
     titles = [art.bib['title'] for art in new_articles]
+    titles.reverse()
     database.update_articles(keywords, titles, db, upsert)
     return new_articles
 

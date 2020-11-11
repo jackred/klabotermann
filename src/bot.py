@@ -12,7 +12,8 @@ from botbuilder.schema import ChannelAccount, ConversationReference, Activity
 
 from src import cmd
 from src import task
-
+from src import database
+from src import scholar
 
 class ProactiveBot(ActivityHandler):
     def __init__(self, prefix, app_id, db, adapter,
@@ -24,9 +25,21 @@ class ProactiveBot(ActivityHandler):
         self.conversation_references = conversation_references
         self.app_id = app_id
         self.adapter = adapter
-        task.create_repeated_task(self.send_proactive_message,
+        task.create_repeated_task(self.send_update_article,
                                   {'s': 30},
-                                  start_now=True)
+                                  start_now=False)
+
+    async def send_update_article(self):
+        await self.send_proactive_message('trying')
+        keywords = database.get_all_keywords(self.db, {'keywords': 1})
+        for k in keywords:
+            articles = scholar.update_one_keywords(k['keywords'], self.db)
+            if len(articles) > 0:
+                titles = ['[%s](%s)' % (art.bib['title'], art.bib['url'])
+                          for art in articles]
+                await self.send_proactive_message(
+                    'Articles found for %s:   \n- %s'
+                    % (k['keywords'], '   \n- '.join(titles)))
 
     async def send_proactive_message(self, s='proactive hello'):
         for conversation_reference in self.conversation_references.values():
@@ -48,7 +61,6 @@ class ProactiveBot(ActivityHandler):
     async def on_message_activity(self, turn_context: TurnContext):
         self._add_conversation_reference(turn_context.activity)
         res = self.parse_commands(turn_context.activity.text)
-        print(res)
         if res is not None:
             await res[0](self, turn_context, res[1], self.db)
 
