@@ -52,3 +52,9 @@ async def keywords_cmd_list(bot, turn_context, args, db):
 async def channel_cmd_add(bot, turn_context, args, db):
     bot._add_conversation_reference(turn_context.activity)
     await turn_context.send_activity('this channel now receive update')
+
+
+async def channel_cmd_rm(bot, turn_context, args, db):
+    bot._rm_conversation_reference(turn_context.activity)
+    await turn_context.send_activity("this channel doesn't receive update"
+                                     + " anymore")

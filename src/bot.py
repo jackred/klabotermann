@@ -82,7 +82,8 @@ class ProactiveBot(ActivityHandler):
         self.commands = {'keywords': {'add': cmd.keywords_cmd_add,
                                       'rm': cmd.keywords_cmd_rm,
                                       'list': cmd.keywords_cmd_list},
-                         'channel': {'add': cmd.channel_cmd_add}
+                         'channel': {'add': cmd.channel_cmd_add,
+                                     'rm': cmd.channel_cmd_rm}
                          }
     
     def _add_conversation_reference(self, activity: Activity):
@@ -92,11 +93,14 @@ class ProactiveBot(ActivityHandler):
         :param activity:
         :return:
         """
-        conversation_reference = TurnContext.get_conversation_reference(activity)
+        conversation_reference = \
+            TurnContext.get_conversation_reference(activity)
         self.conversation_references[
             conversation_reference.user.id
         ] = conversation_reference
 
     def _rm_conversation_reference(self, activity: Activity):
-        conversation_reference = TurnContext.get_conversation_reference(activity)
-        del self.conversation_references[conversation_reference.user.id]
+        conversation_reference = \
+            TurnContext.get_conversation_reference(activity)
+        if conversation_reference in self.conversation_references:
+            del self.conversation_references[conversation_reference.user.id]
