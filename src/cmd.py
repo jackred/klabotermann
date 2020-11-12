@@ -47,3 +47,8 @@ async def keywords_cmd_list(bot, turn_context, args, db):
            .sort('keywords', ASCENDING)]
     msg = '%d keywords watched%s%s' % (len(res), '' if len(res) == 0 else ':   \n- ', '\n- '.join(res))
     await turn_context.send_activity(msg)
+
+
+async def channel_cmd_add(bot, turn_context, args, db):
+    bot._add_conversation_reference(turn_context.activity)
+    await turn_context.send_activity('this channel now receive update')

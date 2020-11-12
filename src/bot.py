@@ -50,7 +50,6 @@ class ProactiveBot(ActivityHandler):
             )
 
     async def on_conversation_update_activity(self, turn_context: TurnContext):
-        self._add_conversation_reference(turn_context.activity)
         return await super().on_conversation_update_activity(turn_context)
 
     async def on_members_added_activity(
@@ -59,7 +58,6 @@ class ProactiveBot(ActivityHandler):
         pass
 
     async def on_message_activity(self, turn_context: TurnContext):
-        self._add_conversation_reference(turn_context.activity)
         res = self.parse_commands(turn_context.activity.text)
         if res is not None:
             await res[0](self, turn_context, res[1], self.db)
@@ -83,7 +81,8 @@ class ProactiveBot(ActivityHandler):
     def create_commands(self):
         self.commands = {'keywords': {'add': cmd.keywords_cmd_add,
                                       'rm': cmd.keywords_cmd_rm,
-                                      'list': cmd.keywords_cmd_list}
+                                      'list': cmd.keywords_cmd_list},
+                         'channel': {'add': cmd.channel_cmd_add}
                          }
     
     def _add_conversation_reference(self, activity: Activity):
