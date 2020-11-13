@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  teams_bot:
+    container_name: klabotermann
+    build: .
+    volumes:
+      - ./config.py:/app/config.py
+    restart: always
+    ports:
+      - "3978"
+    
+networks:
+  default:
+    external:
+      name: ng_network
+
