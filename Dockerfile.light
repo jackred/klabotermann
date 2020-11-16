@@ -1,0 +1,7 @@
+FROM python:3.8.6-alpine
+COPY . /app
+WORKDIR /app
+RUN apk add build-base libffi-dev libxml2-dev libxslt-dev libressl-dev git
+RUN pip install -r requirements.txt
+EXPOSE 3978
+CMD python ./app.py
