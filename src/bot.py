@@ -15,6 +15,7 @@ from src import task
 from src import database
 from src import scholar
 
+
 class ProactiveBot(ActivityHandler):
     def __init__(self, prefix, app_id, db, adapter,
                  conversation_references: Dict[str, ConversationReference]):
@@ -74,7 +75,7 @@ class ProactiveBot(ActivityHandler):
                    and cmds_test[i] in cmd):
                 cmd = cmd[cmds_test[i]]
                 i += 1
-            if i != 0:
+            if i != 0 and type(cmd) != dict:
                 res = cmd, ' '.join(cmds_test[i:])
         return res
 
