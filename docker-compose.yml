@@ -5,7 +5,7 @@ services:
     container_name: klabotermann
     build: .
     volumes:
-      - ./config.py:/app/config.py
+      - ./config.py:/usr/src/app/config.py
     restart: always
     ports:
       - "3978"
