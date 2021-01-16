@@ -8,7 +8,7 @@ services:
       - ./config.py:/app/config.py
     restart: always
     ports:
-      - "3978"
+      - "3978:3978"
     
 networks:
   default:

@@ -11,22 +11,22 @@ from src import database
 from pymongo import ASCENDING
 
 
-def cmd_create_keywords(keywords, db):
+def cmd_create_keywords(keywords, db, proxy):
     res = database.get_keywords(keywords, db)
     if res is None:
-        titles = scholar.create_new_keywords(keywords, db)
+        titles = scholar.create_new_keywords(keywords, db, proxy)
         msg = 'New keywords added. %d articles stored.' % (len(titles))
     else:
         msg = 'Keyword already exist'
     return msg
 
 
-async def keywords_cmd_add(bot, turn_context, args, db):
-    msg = cmd_create_keywords(args, db)
+async def keywords_cmd_add(bot, turn_context, args, db, proxy):
+    msg = cmd_create_keywords(args, db, proxy)
     await turn_context.send_activity(msg)
 
 
-async def keywords_cmd_rm(bot, turn_context, args, db):
+async def keywords_cmd_rm(bot, turn_context, args, db, proxy):
     res = database.rm_keywords(args, db)
     if res.acknowledged:
         if res.deleted_count == 1:
@@ -41,7 +41,7 @@ async def keywords_cmd_rm(bot, turn_context, args, db):
     await turn_context.send_activity(msg)
 
 
-async def keywords_cmd_list(bot, turn_context, args, db):
+async def keywords_cmd_list(bot, turn_context, args, db, proxy):
     res = [k['keywords'] for k in
            database.get_all_keywords(db, {'keywords': 1})
            .sort('keywords', ASCENDING)]
@@ -49,12 +49,12 @@ async def keywords_cmd_list(bot, turn_context, args, db):
     await turn_context.send_activity(msg)
 
 
-async def channel_cmd_add(bot, turn_context, args, db):
+async def channel_cmd_add(bot, turn_context, args, db, proxy):
     bot._add_conversation_reference(turn_context.activity)
     await turn_context.send_activity('this channel now receive update')
 
 
-async def channel_cmd_rm(bot, turn_context, args, db):
+async def channel_cmd_rm(bot, turn_context, args, db, proxy):
     bot._rm_conversation_reference(turn_context.activity)
     await turn_context.send_activity("this channel doesn't receive update"
                                      + " anymore")

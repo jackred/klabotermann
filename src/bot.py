@@ -10,6 +10,8 @@ from typing import Dict
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount, ConversationReference, Activity
 
+from scholarly import ProxyGenerator
+
 from src import cmd
 from src import task
 from src import database
@@ -20,6 +22,7 @@ class ProactiveBot(ActivityHandler):
     def __init__(self, prefix, app_id, db, adapter,
                  conversation_references: Dict[str, ConversationReference]):
         print('create bot')
+        self.create_proxy()
         self.create_commands()
         self.prefix = prefix
         self.db = db
@@ -27,14 +30,23 @@ class ProactiveBot(ActivityHandler):
         self.app_id = app_id
         self.adapter = adapter
         task.create_repeated_task(self.send_update_article,
-                                  {'s': 30},
-                                  start_now=False)
+                                  {'h': 12},
+                                  start_now=True)
+
+    def create_proxy(self):
+        with open('./proxy', 'r') as f:
+            lines = f.read().splitlines()
+        self.proxy = []
+        for line in lines:
+            tmp = ProxyGenerator()
+            tmp.SingleProxy(http=line)
+            self.proxy.append(tmp)
 
     async def send_update_article(self):
         await self.send_proactive_message('trying')
         keywords = database.get_all_keywords(self.db, {'keywords': 1})
         for k in keywords:
-            articles = scholar.update_one_keywords(k['keywords'], self.db)
+            articles = scholar.update_one_keywords(k['keywords'], self.db, self.proxy)
             if len(articles) > 0:
                 titles = ['[%s](%s)' % (art.bib['title'], art.bib['url'])
                           for art in articles]
@@ -61,7 +73,7 @@ class ProactiveBot(ActivityHandler):
     async def on_message_activity(self, turn_context: TurnContext):
         res = self.parse_commands(turn_context.activity.text)
         if res is not None:
-            await res[0](self, turn_context, res[1], self.db)
+            await res[0](self, turn_context, res[1], self.db, self.proxy)
 
     def parse_commands(self, text):
         res = None
