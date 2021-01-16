@@ -34,13 +34,9 @@ class ProactiveBot(ActivityHandler):
                                   start_now=True)
 
     def create_proxy(self):
-        with open('./proxy', 'r') as f:
-            lines = f.read().splitlines()
-        self.proxy = []
-        for line in lines:
-            tmp = ProxyGenerator()
-            tmp.SingleProxy(http=line)
-            self.proxy.append(tmp)
+        tmp = ProxyGenerator()
+        tmp.FreeProxies()
+        self.proxy = tmp
 
     async def send_update_article(self):
         await self.send_proactive_message('trying')

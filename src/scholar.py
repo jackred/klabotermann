@@ -10,7 +10,7 @@ from src import database
 
 
 def request_publication(keywords, proxy):
-    scholarly.use_proxy(proxy[0])
+    scholarly.use_proxy(proxy)
     res = scholarly.search_pubs(' '.join(keywords), to_sort=1)
     return res
 
